@@ -7,7 +7,7 @@ class Value:
         return self.value
 
     def __set__(self, obj, value):
-        self.value = value * (1 - obj.commission)
+        self.value = value - value * obj.commission
 
 
 class Account:
