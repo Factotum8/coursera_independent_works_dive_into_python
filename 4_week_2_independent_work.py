@@ -1,26 +1,24 @@
 class Value:
 
-    def __init__(self, commission):
-        self.commission = commission
+    def __init__(self):
         self.value = None
 
     def __get__(self, obj, obj_type):
         return self.value
 
     def __set__(self, obj, value):
-        self.value = value * (1.0 - self.commission)
+        self.value = value * (1 - obj.commission)
 
 
 class Account:
+    amount = Value()
 
     def __init__(self, commission):
-        Account.amount = Value(commission)
         self.commission = commission
 
 
 if __name__ == '__main__':
-    _ = Account(0.3)
-    _.amount = 150
-    print(_.amount)
-    # pass
+    a = Account(0.9)
+    a.amount = 150
+    print(a.amount)
 
