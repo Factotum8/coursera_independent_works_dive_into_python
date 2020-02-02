@@ -1,20 +1,10 @@
-import json
-import functools
+# атрибут args
+import os.path
 
-
-def to_json(func):
-	
-	@functools.wraps(func)
-	def wrapper(*args, **kwargs):
-		return json.dumps(func(*args, **kwargs))
-	
-	return wrapper
-
-
-@to_json
-def get_data():
-  return {
-    'data': 42
-  }
-  
-get_data()  # вернёт '{"data": 42}'
+filename = "/file/not/found"
+try:
+    if not os.path.exists(filename):
+        raise ValueError("файл не существует", filename)
+except ValueError as err:
+    message, filename = err.args[0], err.args[1]
+    print(message, code)
