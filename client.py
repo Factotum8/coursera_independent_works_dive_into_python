@@ -14,12 +14,6 @@ class Client:
 
     def put(self, key, value, timestamp=None):
         try:
-            # response = req.post(url=f"{self._host}:{self._port}",
-            #                     data=f"put {key} {value} {timestamp or int(time.time())}\n",
-            #                     timeout=self._timeout)
-            #
-            # if response.status_code != 200 or response.text != self.answer_pattern:
-            #     raise ClientError(f"Response status not 200 OK, server answer: {response.text}")
 
             with socket.create_connection((self._host, self._port)) as sock:
                 # put palm.cpu 23.7 1150864247\n
@@ -28,9 +22,18 @@ class Client:
 
                 response = ""
                 try:
+                    # response = sock.recv(4096).decode("utf8")
                     while True:
                         data = sock.recv(1024)
+
+                        if not data:
+                            break
+
                         response = f'{response}{data.decode("utf8")}'
+
+                        if response[-2:] == '\n\n':
+                            break
+
                 except socket.timeout:
                     pass
 
@@ -39,34 +42,48 @@ class Client:
 
         except ClientError:
             raise
-        except Exception as e:
+        except socket.error as e:
             raise ClientError("Can't send data to server") from e
+        except Exception as e:
+            raise ClientError("Client error") from e
 
     @staticmethod
     def loads(s):
-        return {metric: [(int(stamp), float(val)) for stamp, val in metric].sort() for metric in json.loads(s)}
+        s = s.split('\n')[1:-2]
+        s = [i.split(' ') for i in s]
+        # [['palm.cpu', '10.5', '1501864247'], ['eardrum.cpu', '15.3', '1501864259']]
+        d = {}
+        for i in s:
+            k, v, t = i
+            if k in d:
+                d[k].append((int(t), float(v)))
+            else:
+                d[k] = [(int(t), float(v))]
+
+        return {k: sorted(v) for k, v in d.items()}
 
     def get(self, key='*'):
         try:
-            # response = req.post(url=f"{self._host}:{self._port}",
-            #                     data=f"get {key}\n",
-            #                     timeout=self._timeout)
-            #
-            # if response.text == self.answer_pattern:
-            #     return {}
-            # else:
-            #     return self.loads(response.text)
 
             with socket.create_connection((self._host, self._port)) as sock:
-                sock.sendall(f"get {key}".encode("utf8"))
                 sock.settimeout(self._timeout)
+                sock.sendall(f"get {key}".encode("utf8"))
 
                 response = ""
 
                 try:
+                    # response = sock.recv(4096).decode("utf8")
+
                     while True:
                         data = sock.recv(1024)
+
+                        if not data:
+                            break
                         response = f'{response}{data.decode("utf8")}'
+
+                        if response[-2:] == '\n\n':
+                            break
+
                 except socket.timeout:
                     pass
 
@@ -75,8 +92,10 @@ class Client:
                 else:
                     return self.loads(response)
 
+        except socket.error as e:
+            raise ClientError(f"Socket error") from e
         except Exception as e:
-            raise ClientError(f"Can't get data from server") from e
+            raise ClientError(f"Can't prepare data from server") from e
 
 
 class ClientError(Exception):
@@ -84,4 +103,6 @@ class ClientError(Exception):
 
 
 if __name__ == '__main__':
-    pass
+    client = Client("127.0.0.1", 8888)
+    print(client.get('*'))
+    # print(client.put('k.ey', '123'))
