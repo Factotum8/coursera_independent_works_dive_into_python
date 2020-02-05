@@ -16,8 +16,9 @@ print('Соединение установлено:', addr)
 # response = b'ok\npalm.cpu 10.5 1501864247\neardrum.cpu 15.3 1501864259\n\n'
 # response = b'ok\npalm.cpu 2.0 1150864249\npalm.cpu 0.5 1150864248\neardrum.cpu 3.0 1150864250\n\n'
 # response = b"some_text\nok\n\n"
-response = b"ok\n\n"
+# response = b"ok\n\n"
 # response = b"error\nwrong command\n\n"
+response = b"dcslkdvnlsndblvadn"
 
 while True:
     data = conn.recv(1024)
