@@ -166,7 +166,13 @@ class ClientError(Exception):
 
 
 if __name__ == '__main__':
-    client = Client("127.0.0.1", 8888, 3)
-    print(client.get('*'))
+    client = Client("127.0.0.1", 8888, 20)
+    # print(client.get('*'))
     # print(client.put('key.val', '123'))
+    print(client.put('test_key', '12.0', '1503319740'))
+    print(client.put('test_key', '13.0', '1503319740'))
+    # print(client.put('test_key', '13.0'))
+    # print(client.put('test_key', '13.0'))
+    # print(client.get('key.val'))
+    print(client.get('test_key'))
     client.socket.close()
